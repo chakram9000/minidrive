@@ -1,0 +1,14 @@
+<% if (locals.errors) {%>
+	<ul>
+		<% errors.forEach(function(error) { %>
+			<li><%= error.msg %></li>
+		<% }); %>
+	</ul>
+<% } else if (locals.errorMessages) { %>
+	<ul>
+		<% errorMessages.forEach(function(error) { %>
+			<li><%= error %></li>
+		<% }); %>
+	</ul>
+<% } %>
+

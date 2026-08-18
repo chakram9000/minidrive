@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minidrive</title>
+		<%- include("components/meta.ejs") %>
+</head>
+<body>
+		<main>
+			<% if (locals.user) { %>
+				<h1>Welcome to your minidrive, <%= user.username %></h1>
+			<% } else { %>
+				<h1>Please login to access your minidrive.</h1>
+			<% } %>
+		</main>
+</body>
+</html>
+

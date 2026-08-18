@@ -6,6 +6,8 @@ import expressSession from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { prisma } from "./lib/prisma.js";
 import passport from "passport";
+import authRouter from "./routes/auth.js";
+import indexRouter from "./routes/index.js";
 
 const app = express();
 
@@ -22,22 +24,24 @@ app.use(
     }),
     secret: process.env.SESSION_SECRET,
     resave: true,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }, // 7 days
   }),
 );
 app.use(passport.session());
 app.use(express.urlencoded({ extended: true }));
 
-// set locals.user, this is mainly for ejs
+// this is mainly for ejs
 app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
 });
 
+app.get("/", indexRouter);
+app.use("/", authRouter);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, (err) => {
   if (err) throw err;
-
   console.log(`Minidrive running at port ${PORT}`);
 });

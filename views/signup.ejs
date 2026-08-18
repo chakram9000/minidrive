@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signup</title>
+		<%- include("components/meta.ejs") %>
+</head>
+<body>
+    <h1>Signup</h1>
+		<%- include("components/errors.ejs") %>
+    <form action="/signup" method="post">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+        <br>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+        <br>
+				<label for="password2">Confirm Password:</label>
+        <input type="password" name="password2" id="password2" required>
+        <br>
+        <br>
+        <input type="submit" value="Signup">
+    </form>
+		<a href="/login">Login</a>
+</body>
+</html>

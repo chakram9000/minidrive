@@ -13,7 +13,14 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @unique
-  username String @unique
+  id       Int    @id @default(autoincrement())
+  username String @unique @db.VarChar(64)
   password String @unique
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
 }
