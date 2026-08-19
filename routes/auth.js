@@ -12,9 +12,7 @@ router.get("/signup", (_, res) => {
 });
 
 router.get("/login", (req, res) => {
-  res.render("login", {
-    errorsMessages: req.session.errors,
-  });
+  res.render("login", { errorsMessages: req.session.errors });
 });
 
 router.get("/logout", (req, res, next) => {
@@ -27,9 +25,7 @@ router.get("/logout", (req, res, next) => {
 router.post("/signup", validateSignup, async (req, res) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
-    return res.status(400).render("signup", {
-      errors: result.array(),
-    });
+    return res.status(400).render("signup", { errors: result.array() });
   }
 
   const { username, password } = matchedData(req);
@@ -39,11 +35,7 @@ router.post("/signup", validateSignup, async (req, res) => {
     data: {
       username: username,
       password: hashedPassword,
-      rootDir: {
-        create: {
-          name: "root",
-        },
-      },
+      rootDir: { create: { name: "root" } },
     },
   });
 

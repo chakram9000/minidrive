@@ -8,6 +8,7 @@ import { prisma } from "./lib/prisma.js";
 import passport from "passport";
 import authRouter from "./routes/auth.js";
 import indexRouter from "./routes/index.js";
+import driveRouter from "./routes/drive.js";
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use((req, res, next) => {
 
 app.get("/", indexRouter);
 app.use("/", authRouter);
+app.use("/drive", driveRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, (err) => {

@@ -23,17 +23,17 @@ model User {
 model Directory {
   id          Int         @id @default(autoincrement())
   name        String
+  full_path   String      @unique
+  owner       User?
   files       File[]
   subDirs     Directory[] @relation("dir")
   parentDir   Directory?  @relation("dir", fields: [parentDirId], references: [id])
   parentDirId Int?
-  owner       User?
 }
 
 model File {
   id          Int       @id @default(autoincrement())
   name        String
-  systemPath  String    @unique @map("system_path")
   parentDir   Directory @relation(fields: [parentDirId], references: [id])
   parentDirId Int
 }
