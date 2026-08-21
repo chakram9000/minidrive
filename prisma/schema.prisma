@@ -23,7 +23,6 @@ model User {
 model Directory {
   id          Int         @id @default(autoincrement())
   name        String
-  full_path   String      @default("/")
   rootOwner   User?
   files       File[]
   subDirs     Directory[] @relation("dir")

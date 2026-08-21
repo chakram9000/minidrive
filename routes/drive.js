@@ -1,3 +1,7 @@
+//
+// we try to copy google drive's routing, play around with their site to find out how it works.
+//
+
 import { Router } from "express";
 import { validateAuth } from "../validators/auth.js";
 import { prisma } from "../lib/prisma.js";
@@ -8,36 +12,56 @@ router.get("/", validateAuth, (req, res) => {
   res.redirect(req.baseUrl + "/files");
 });
 
-router.get("/files{/*path}", validateAuth, async (req, res) => {
-  const requestedDrivePath = req.params.path;
-  const didRequestRoot = !requestedDrivePath || requestedDrivePath.length === 0;
+router.get("/folders{/}", validateAuth, (_, res) =>
+  res.redirect("/folders/home"),
+);
 
-  let subdrive;
-  if (didRequestRoot) {
+router.get("/folders/home", validateAuth, async (req, res) => {
+  try {
     // using findFirst when it should be findUnique, but prisma is trash and thinks you need
     // a direct attribute to be unique.
-    subdrive = await prisma.directory.findFirst({
+    const subdrive = await prisma.directory.findFirst({
       where: {
         rootOwner: { id: req.user.id },
       },
     });
-  } else {
-    subdrive = await prisma.directory.findUnique({
-      where: {
-        full_path: requestedDrivePath,
-      },
-    });
-  }
 
-  if (!subdrive) {
+    if (!subdrive)
+      throw Error(
+        `couldn't find the root drive somehow, user id is ${req.user.id}`,
+      );
+
+    // @TEMP
+    console.log(subdrive);
+
+    res.render("drive", { subdrive });
+  } catch (err) {
     return res
       .status(500)
       .send("An error occured, we couldn't fetch your drive...");
   }
+});
 
-  console.log(subdrive);
+router.get("/folders/:id", validateAuth, async (req, res) => {
+  try {
+    const subdrive = await prisma.directory.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
 
-  res.render("drive", { subdrive });
+    if (!subdrive)
+      throw Error(`couldn't find the subdrive somehow, id is ${req.params.id}`);
+
+    // @TEMP
+    console.log(subdrive);
+
+    res.render("drive", { subdrive });
+  } catch (err) {
+    return res
+      .status(500)
+      .send("An error occured, we couldn't fetch your drive...");
+  }
 });
 
 export default router;
