@@ -1,9 +1,12 @@
 <section id="drive">
+	<% if (subdrive.parentDirId) { %>
+		<a href="/drive/folders/<%= subdrive.parentDirId %>">..</a>
+	<% } %>
 	<% if (!subdrive.subDirs.length && !subdrive.files.length) { %>
-		<p>your drive is empty.</p>
+		<p>This directory is empty.</p>
 	<% } else { %>
 		<% subdrive.subDirs.forEach((subdir) => { %>
-			<a class="dir-link" href="/drive/folders/<%= subdir.id %>"><%= subdir.name %></a>
+			<a class="dir-link" href="/drive/folders/<%= subdir.id %>"><%= subdir.name %>/</a>
 		<% }) %>
 
 		<% subdrive.files.forEach((file) => { %>

@@ -2,11 +2,17 @@
 // i tried to copy google drive's routing, play around with their site to find out how it works.
 //
 
+// @TODO: removing folders
+// @TODO: removing files
+// @TODO: renaming folders
+// @TODO: renaming files
 import { Router } from "express";
 import { validateAuth } from "../validators/auth.js";
 import { prisma } from "../lib/prisma.js";
 import multer from "multer";
 import path from "path";
+import { validateFolderCreationForm } from "../validators/drive.js";
+import { matchedData, validationResult } from "express-validator";
 
 const storage = multer.diskStorage({
   destination: "uploads/",
@@ -37,7 +43,9 @@ router.get("/folders/home", validateAuth, async (req, res) => {
       },
     });
 
-    console.log(subdrive); // @TEMP
+    if (subdrive.ownerId !== req.user.id) {
+      return res.status(401).send("Unauthorized.");
+    }
 
     if (!subdrive) {
       throw Error(
@@ -67,7 +75,9 @@ router.get("/folders/:id", validateAuth, async (req, res) => {
       },
     });
 
-    console.log(subdrive); // @TEMP
+    if (subdrive.ownerId !== req.user.id) {
+      return res.status(401).send("Unauthorized.");
+    }
 
     if (!subdrive)
       throw Error(`couldn't find the subdrive somehow, id is ${req.params.id}`);
@@ -88,6 +98,10 @@ router.get("/files/:uuid", validateAuth, async (req, res) => {
         uuid: req.params.uuid,
       },
     });
+
+    if (fileMetadata.ownerId !== req.user.id) {
+      return res.status(401).send("Unauthorized.");
+    }
 
     res.setHeader(
       "Content-Disposition",
@@ -110,28 +124,27 @@ router.get("/files/:uuid", validateAuth, async (req, res) => {
 });
 
 router.post(
-  "/upload-file/:folder_id",
+  "/upload-file/:parent_id",
   validateAuth,
   upload.single("file"),
   async (req, res) => {
-    console.log(req.file); // @TEMP
     if (!req.file) {
       return res.status(400).send("Tried to upload nothing.");
     }
 
-    const folderID = Number.parseInt(req.params.folder_id);
-    if (isNaN(folderID)) {
+    const parentFolderID = Number.parseInt(req.params.parent_id);
+    if (isNaN(parentFolderID)) {
       return res.status(400).send("Invalid directory id.");
     }
 
     try {
-      const fileAlreadyExists = await prisma.file.findFirst({
+      const alreadyExistingFile = await prisma.file.findFirst({
         where: {
-          parentDirId: folderID,
+          parentDirId: parentFolderID,
           name: req.file.originalname,
         },
       });
-      if (fileAlreadyExists) {
+      if (alreadyExistingFile) {
         return res
           .status(400)
           .send("File already exists. We haven't implemented overriding...");
@@ -141,7 +154,7 @@ router.post(
         data: {
           uuid: req.file.filename,
           name: req.file.originalname,
-          parentDirId: folderID,
+          parentDirId: parentFolderID,
           size: req.file.size,
           ownerId: req.user.id,
         },
@@ -153,6 +166,55 @@ router.post(
       return res
         .status(500)
         .send("An error occured, we couldn't upload that file...");
+    }
+  },
+);
+
+router.post(
+  "/create-folder/:parent_id",
+  validateAuth,
+  validateFolderCreationForm,
+  async (req, res) => {
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+      // @TODO: put errors next to the form
+      return res.status(400).send(result.array());
+    }
+
+    const { folder_name } = matchedData(req);
+
+    try {
+      const parentFolderID = Number.parseInt(req.params.parent_id);
+      if (isNaN(parentFolderID)) {
+        return res.status(400).send("Invalid directory id.");
+      }
+
+      const alreadyExistingDir = await prisma.directory.findFirst({
+        where: {
+          parentDirId: parentFolderID,
+          name: folder_name,
+        },
+      });
+      if (alreadyExistingDir) {
+        return res
+          .status(400)
+          .send("There exists a directory with the same name.");
+      }
+
+      const newDir = await prisma.directory.create({
+        data: {
+          name: folder_name,
+          parentDirId: parentFolderID,
+          ownerId: req.user.id,
+        },
+      });
+
+      res.redirect(req.baseUrl + "/folders/" + newDir.id);
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .send("An error occured, we couldn't create that directory...");
     }
   },
 );
