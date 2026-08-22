@@ -79,16 +79,50 @@ router.get("/folders/:id", validateAuth, async (req, res) => {
   }
 });
 
-router.post("/upload-file/:folder_id", upload.single("file"), (req, res) => {
-  console.log(req.file); // @TEMP
+router.post(
+  "/upload-file/:folder_id",
+  upload.single("file"),
+  async (req, res) => {
+    console.log(req.file); // @TEMP
+    if (!req.file) {
+      return res.status(400).send("Tried to upload nothing.");
+    }
 
-  if (!req.file) {
-    return res.status(400).send("Tried to upload nothing.");
-  }
+    const folderID = Number.parseInt(req.params.folder_id);
+    if (isNaN(folderID)) {
+      return res.status(400).send("Invalid directory id.");
+    }
 
-  // @TODO: add to db
+    try {
+      const fileAlreadyExists = await prisma.file.findFirst({
+        where: {
+          parentDirId: folderID,
+          name: req.file.originalname,
+        },
+      });
+      if (fileAlreadyExists) {
+        return res
+          .status(400)
+          .send("File already exists. We haven't implemented overriding...");
+      }
 
-  res.redirect(req.baseUrl + "/folders/" + req.params.folder_id);
-});
+      await prisma.file.create({
+        data: {
+          uuid: req.file.filename,
+          name: req.file.originalname,
+          parentDirId: folderID,
+          size: req.file.size,
+        },
+      });
+
+      res.redirect(req.baseUrl + "/folders/" + req.params.folder_id);
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .send("An error occured, we couldn't upload that file...");
+    }
+  },
+);
 
 export default router;
