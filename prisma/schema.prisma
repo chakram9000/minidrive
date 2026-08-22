@@ -31,7 +31,7 @@ model Directory {
 }
 
 model File {
-  id          Int       @id @default(autoincrement())
+  uuid        String    @unique @db.Uuid // no default, we set this to the uploaded file's generated uuid
   name        String
   size        Int // Bytes 
   parentDir   Directory @relation(fields: [parentDirId], references: [id])

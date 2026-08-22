@@ -1,19 +1,24 @@
 //
-// we try to copy google drive's routing, play around with their site to find out how it works.
+// i tried to copy google drive's routing, play around with their site to find out how it works.
 //
 
 import { Router } from "express";
 import { validateAuth } from "../validators/auth.js";
 import { prisma } from "../lib/prisma.js";
+import multer from "multer";
+
+const storage = multer.diskStorage({
+  filename: (_req, _file, cb) => {
+    const uuid = crypto.randomUUID();
+    cb(null, uuid);
+  },
+});
+const upload = multer({ dest: "uploads/", storage: storage });
 
 const router = Router();
 
-router.get("/", validateAuth, (req, res) => {
-  res.redirect(req.baseUrl + "/files");
-});
-
-router.get("/folders{/}", validateAuth, (_, res) =>
-  res.redirect("/folders/home"),
+router.get("/{folders}", validateAuth, (req, res) =>
+  res.redirect(req.baseUrl + "/folders/home"),
 );
 
 router.get("/folders/home", validateAuth, async (req, res) => {
@@ -23,6 +28,10 @@ router.get("/folders/home", validateAuth, async (req, res) => {
     const subdrive = await prisma.directory.findFirst({
       where: {
         rootOwner: { id: req.user.id },
+      },
+      include: {
+        files: true,
+        subDirs: true,
       },
     });
 
@@ -47,6 +56,10 @@ router.get("/folders/:id", validateAuth, async (req, res) => {
     const subdrive = await prisma.directory.findUnique({
       where: {
         id: req.params.id,
+      },
+      include: {
+        files: true,
+        subDirs: true,
       },
     });
 

@@ -10,12 +10,12 @@ import authRouter from "./routes/auth.js";
 import indexRouter from "./routes/index.js";
 import driveRouter from "./routes/drive.js";
 
+setup_passport();
+
 const app = express();
 
 app.set("views", path.join(import.meta.dirname, "views"));
 app.set("view engine", "ejs");
-
-setup_passport();
 
 app.use(express.static(path.join(import.meta.dirname, "public")));
 app.use(
