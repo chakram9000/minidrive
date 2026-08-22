@@ -6,6 +6,7 @@ import { Router } from "express";
 import { validateAuth } from "../validators/auth.js";
 import { prisma } from "../lib/prisma.js";
 import multer from "multer";
+import path from "path";
 
 const storage = multer.diskStorage({
   destination: "uploads/",
@@ -38,10 +39,11 @@ router.get("/folders/home", validateAuth, async (req, res) => {
 
     console.log(subdrive); // @TEMP
 
-    if (!subdrive)
+    if (!subdrive) {
       throw Error(
         `couldn't find the root drive somehow, user id is ${req.user.id}`,
       );
+    }
 
     res.render("drive", { subdrive });
   } catch (err) {
@@ -79,8 +81,37 @@ router.get("/folders/:id", validateAuth, async (req, res) => {
   }
 });
 
+router.get("/files/:uuid", validateAuth, async (req, res) => {
+  try {
+    const fileMetadata = await prisma.file.findUnique({
+      where: {
+        uuid: req.params.uuid,
+      },
+    });
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${fileMetadata.name}"`,
+    );
+
+    const rootPath = path.join(import.meta.dirname, "..", "uploads/");
+    res.sendFile(req.params.uuid, { root: rootPath }, (err) => {
+      if (err) {
+        console.error("Error sending file:", err);
+        res.status(500).send("File not found!");
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .send("An error occured, we couldn't upload that file...");
+  }
+});
+
 router.post(
   "/upload-file/:folder_id",
+  validateAuth,
   upload.single("file"),
   async (req, res) => {
     console.log(req.file); // @TEMP
@@ -112,6 +143,7 @@ router.post(
           name: req.file.originalname,
           parentDirId: folderID,
           size: req.file.size,
+          ownerId: req.user.id,
         },
       });
 

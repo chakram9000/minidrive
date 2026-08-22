@@ -1,8 +1,14 @@
 <section id="drive">
-	<% if (!subdrive.subdirs || subdrive.subdirs.length === 0) { %>
+	<% if (!subdrive.subDirs.length && !subdrive.files.length) { %>
 		<p>your drive is empty.</p>
 	<% } else { %>
-		<p>drive loaded... hmm, it should go here.</p>
+		<% subdrive.subDirs.forEach((subdir) => { %>
+			<a class="dir-link" href="/drive/folders/<%= subdir.id %>"><%= subdir.name %></a>
+		<% }) %>
+
+		<% subdrive.files.forEach((file) => { %>
+			<a class="file-link" href="/drive/files/<%= file.uuid %>"><%= file.name %></a>
+		<% }) %>
 	<% } %>
 </section>
 

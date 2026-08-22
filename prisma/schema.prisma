@@ -13,21 +13,23 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique @db.VarChar(64)
-  password  String
-  rootDir   Directory @relation(fields: [rootDirId], references: [id])
-  rootDirId Int       @unique @map("root_dir_id")
+  id          Int         @id @default(autoincrement())
+  username    String      @unique @db.VarChar(64)
+  password    String
+  rootDirId   Int         @unique @map("root_dir_id")
+  files       File[]
+  directories Directory[]
 }
 
 model Directory {
   id          Int         @id @default(autoincrement())
   name        String
-  rootOwner   User?
   files       File[]
   subDirs     Directory[] @relation("dir")
   parentDir   Directory?  @relation("dir", fields: [parentDirId], references: [id])
   parentDirId Int?
+  owner       User        @relation(fields: [ownerId], references: [id])
+  ownerId     Int
 }
 
 model File {
@@ -36,6 +38,8 @@ model File {
   size        Int // Bytes 
   parentDir   Directory @relation(fields: [parentDirId], references: [id])
   parentDirId Int
+  owner       User      @relation(fields: [ownerId], references: [id])
+  ownerId     Int
 }
 
 model Session {

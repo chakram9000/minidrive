@@ -1,0 +1,7 @@
+#drive {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100vw;
+  padding: 0.5rem;
+}
