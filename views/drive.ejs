@@ -8,7 +8,7 @@
 		<main>
 			<form action="/drive/upload-file/<%= subdrive.id %>" method="post" enctype="multipart/form-data">
 				<label for="file">Upload a file:</label>
-				<input id="file" name="file" type="file" />
+				<input id="file" name="file" type="file" required />
 				<input type="submit" value="Submit" />
 			</form>
 			<%- include("components/drive.ejs") %>
