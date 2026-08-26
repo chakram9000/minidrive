@@ -17,19 +17,21 @@ model User {
   username    String      @unique @db.VarChar(64)
   password    String
   rootDirId   Int         @unique @map("root_dir_id")
+  rootDir     Directory   @relation("root", fields: [rootDirId], references: [id])
   files       File[]
   directories Directory[]
 }
 
 model Directory {
-  id          Int         @id @default(autoincrement())
-  name        String
-  files       File[]
-  subDirs     Directory[] @relation("dir")
-  parentDir   Directory?  @relation("dir", fields: [parentDirId], references: [id], onDelete: Cascade)
-  parentDirId Int?
-  owner       User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId     Int
+  id                    Int         @id @default(autoincrement())
+  name                  String
+  files                 File[]
+  subDirs               Directory[] @relation("dir")
+  parentDir             Directory?  @relation("dir", fields: [parentDirId], references: [id], onDelete: Cascade)
+  parentDirId           Int?
+  owner                 User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId               Int
+  ownerOfThisIfItsARoot User?       @relation("root") // useless, but prisma keeps screaming at me
 
   @@index([parentDirId]) // needed mainly for querying all nested dirs and files, but also helps in most operations.
 }
