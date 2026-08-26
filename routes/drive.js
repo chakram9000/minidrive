@@ -2,14 +2,12 @@
 // i tried to copy google drive's routing, play around with their site to find out how it works.
 //
 
-// @TODO: renaming folders
-// @TODO: renaming files
 import { Router } from "express";
 import { validateAuth } from "../validators/auth.js";
 import { prisma } from "../lib/prisma.js";
 import multer from "multer";
 import path from "path";
-import { validateFolderCreationForm } from "../validators/drive.js";
+import { validateFileName, validateFolderName } from "../validators/drive.js";
 import { matchedData, validationResult } from "express-validator";
 import { unlink } from "fs";
 
@@ -99,6 +97,7 @@ router.get("/files/:uuid", validateAuth, async (req, res) => {
       return res.status(401).send("Unauthorized.");
     }
 
+    // @TODO!: use res.download instead of the rest of this as it's safer and simpler
     res.setHeader(
       "Content-Disposition",
       `attachment; filename="${fileMetadata.name}"`,
@@ -179,7 +178,7 @@ router.post(
 router.post(
   "/create-folder/:parent_id",
   validateAuth,
-  validateFolderCreationForm,
+  validateFolderName,
   async (req, res) => {
     try {
       const result = validationResult(req);
@@ -234,6 +233,99 @@ router.post(
       return res
         .status(500)
         .send("An error occured, we couldn't create that directory...");
+    }
+  },
+);
+
+router.post(
+  "/rename-file/:uuid",
+  validateAuth,
+  validateFileName,
+  async (req, res) => {
+    try {
+      const result = validationResult(req);
+      if (!result.isEmpty()) {
+        // @TODO: put errors next to the form
+        return res.status(400).send(result.array());
+      }
+
+      const { file_name } = matchedData(req);
+
+      const fileUUID = req.params.uuid;
+
+      const file = await prisma.file.findUnique({
+        where: {
+          uuid: fileUUID,
+        },
+      });
+
+      if (file.ownerId !== req.user.id) {
+        return res.status(401).send("Unauthorized.");
+      }
+
+      await prisma.file.update({
+        where: {
+          uuid: fileUUID,
+        },
+        data: {
+          name: file_name,
+        },
+      });
+
+      res.redirect(req.baseUrl + "/folders/" + file.parentDirId);
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .send("An error occured, we couldn't update that file's name...");
+    }
+  },
+);
+
+router.post(
+  "/rename-folder/:id",
+  validateAuth,
+  validateFolderName,
+  async (req, res) => {
+    try {
+      const result = validationResult(req);
+      if (!result.isEmpty()) {
+        // @TODO: put errors next to the form
+        return res.status(400).send(result.array());
+      }
+
+      const { folder_name } = matchedData(req);
+
+      const folderId = Number.parseInt(req.params.id);
+      if (isNaN(folderId)) {
+        return res.status(400).send("Invalid directory id.");
+      }
+
+      const folder = await prisma.directory.findUnique({
+        where: {
+          id: folderId,
+        },
+      });
+
+      if (folder.ownerId !== req.user.id) {
+        return res.status(401).send("Unauthorized.");
+      }
+
+      await prisma.directory.update({
+        where: {
+          id: folderId,
+        },
+        data: {
+          name: folder_name,
+        },
+      });
+
+      res.redirect(req.baseUrl + "/folders/" + folder.parentDirId);
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .send("An error occured, we couldn't update that directory's name...");
     }
   },
 );

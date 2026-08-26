@@ -1,27 +1,45 @@
 <section id="drive">
-	<% if (!subdrive.isRoot) { %>
-		<a href="/drive/folders/<%= subdrive.parentDirId %>">../</a>
-	<% } %>
+<% if (!subdrive.isRoot) { %>
+	<a href="/drive/folders/<%= subdrive.parentDirId %>">../</a>
+<% } %>
 
-	<% if (!subdrive.subDirs.length && !subdrive.files.length) { %>
-		<p>This directory is empty.</p>
-	<% } else { %>
-		<% subdrive.subDirs.forEach((subdir) => { %>
-			<div class="dir">
-				<a class="dir-link" href="/drive/folders/<%= subdir.id %>"><%= subdir.name %>/</a>
-				<form action="/drive/delete-folder/<%= subdir.id %>" method="post" style="display: inline;">
-					<button type="submit" onclick="return confirm('Are you sure you want to delete <%= subdir.name %>/')">Delete</button>
-				</form>
-			</div>
-		<% }) %>
-		<% subdrive.files.forEach((file) => { %>
-			<div class="file">
-				<a class="file-link" href="/drive/files/<%= file.uuid %>"><%= file.name %></a>
-				<form action="/drive/delete-file/<%= file.uuid %>" method="post" style="display: inline;">
-					<button type="submit" onclick="return confirm('Are you sure you want to delete <%= file.name %>')">Delete</button>
-				</form>
-			</div>
-		<% }) %>
-	<% } %>
+<% if (!subdrive.subDirs.length && !subdrive.files.length) { %>
+	<p>This directory is empty.</p>
+<% } else { %>
+	<% subdrive.subDirs.forEach((subdir) => { %>
+		<div class="dir">
+			<a class="dir-link" href="/drive/folders/<%= subdir.id %>"><%= subdir.name %>/</a>
+			<form 
+				method="post"
+				action="/drive/rename-folder/<%= subdir.id %>"
+				onsubmit="const p=prompt('Enter new name:', '<%= subdir.name %>}');if(p==null)return false;this.folder_name.value=p"
+				style="display: inline;"
+			>
+				<input type="hidden" name="folder_name">
+				<button>Edit name</button>
+			</form>
+			<form action="/drive/delete-folder/<%= subdir.id %>" method="post" style="display: inline;">
+				<button type="submit" onclick="return confirm('Are you sure you want to delete <%= subdir.name %>/')">Delete</button>
+			</form>
+		</div>
+	<% }) %>
+	<% subdrive.files.forEach((file) => { %>
+		<div class="file">
+			<a class="file-link" href="/drive/files/<%= file.uuid %>"><%= file.name %></a>
+			<form 
+				method="post"
+				action="/drive/rename-file/<%= file.uuid %>"
+				onsubmit="const p=prompt('Enter new name:', <%= JSON.stringify(file.name) %>);if(p==null)return false;this.file_name.value=p"
+				style="display: inline;"
+			>
+				<input type="hidden" name="file_name">
+				<button>Edit name</button>
+			</form>
+			<form action="/drive/delete-file/<%= file.uuid %>" method="post" style="display: inline;">
+				<button type="submit" onclick="return confirm('Are you sure you want to delete <%= file.name %>')">Delete</button>
+			</form>
+		</div>
+	<% }) %>
+<% } %>
 </section>
 
