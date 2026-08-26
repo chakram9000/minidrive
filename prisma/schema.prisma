@@ -26,20 +26,24 @@ model Directory {
   name        String
   files       File[]
   subDirs     Directory[] @relation("dir")
-  parentDir   Directory?  @relation("dir", fields: [parentDirId], references: [id])
+  parentDir   Directory?  @relation("dir", fields: [parentDirId], references: [id], onDelete: Cascade)
   parentDirId Int?
-  owner       User        @relation(fields: [ownerId], references: [id])
+  owner       User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     Int
+
+  @@index([parentDirId]) // needed mainly for querying all nested dirs and files, but also helps in most operations.
 }
 
 model File {
   uuid        String    @unique @db.Uuid // no default, we set this to the uploaded file's generated uuid
   name        String
   size        Int // Bytes 
-  parentDir   Directory @relation(fields: [parentDirId], references: [id])
+  parentDir   Directory @relation(fields: [parentDirId], references: [id], onDelete: Cascade)
   parentDirId Int
-  owner       User      @relation(fields: [ownerId], references: [id])
+  owner       User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     Int
+
+  @@index([parentDirId]) // needed mainly for querying all nested dirs and files, but also helps in most operations.
 }
 
 model Session {

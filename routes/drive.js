@@ -13,6 +13,7 @@ import multer from "multer";
 import path from "path";
 import { validateFolderCreationForm } from "../validators/drive.js";
 import { matchedData, validationResult } from "express-validator";
+import { unlink } from "fs";
 
 const storage = multer.diskStorage({
   destination: "uploads/",
@@ -218,5 +219,55 @@ router.post(
     }
   },
 );
+
+router.post("/delete-folder/:id", validateAuth, async (req, res) => {
+  try {
+    const dirId = Number.parseInt(req.params.id);
+    if (isNaN(dirId)) {
+      return res.status(400).send("Invalid directory id.");
+    }
+
+    // first, get all files nested inside this dir,
+    // we get them using a recursive CTE (needs a raw query).
+    // this is to get all of their uuids to remove them from the actual storage.
+    const files = await prisma.$queryRaw(`
+			WITH RECURSIVE nested_dirs AS (
+				SELECT id FROM "Directory"
+				WHERE id = ${dirId}
+				UNION ALL
+				SELECT d.id
+				FROM "Directory" d
+				JOIN nested_dirs n
+				ON d."parentDirId" = n.id
+			)
+			SELECT * FROM "File"
+			WHERE "parentDirId" IN (SELECT id FROM nested_dirs)
+		`);
+
+    // then, delete them from storage
+    files.forEach((file) => {
+      const filePath = path.join("../uploads/", file.uuid);
+      console.log(`Deleteing ${filePath}`); // @TEMP ?
+      unlink(filePath, (err) => {
+        // we just print the error and continue.
+        console.error(`Error while trying to delete ${file.uuid}: ${err}`);
+      });
+    });
+
+    // then delete the dir, the dir and file rows in the db will be deleted by cascade.
+    await prisma.directory.delete({
+      where: {
+        id: dirId,
+      },
+    });
+
+    res.redirect(req.baseUrl);
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .send("An error occured, we couldn't delete that directory...");
+  }
+});
 
 export default router;
