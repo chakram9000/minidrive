@@ -9,15 +9,15 @@
 		<% subdrive.subDirs.forEach((subdir) => { %>
 			<div class="dir">
 				<a class="dir-link" href="/drive/folders/<%= subdir.id %>"><%= subdir.name %>/</a>
-				<form action="/delete-folder/<%= subdir.id %>" method="post" style="display: inline;">
-					<button type="submit" onclick="return confirm('Are you sure you want to delete <%= subdir.name %>//')">Delete</button>
+				<form action="/drive/delete-folder/<%= subdir.id %>" method="post" style="display: inline;">
+					<button type="submit" onclick="return confirm('Are you sure you want to delete <%= subdir.name %>/')">Delete</button>
 				</form>
 			</div>
 		<% }) %>
 		<% subdrive.files.forEach((file) => { %>
 			<div class="file">
 				<a class="file-link" href="/drive/files/<%= file.uuid %>"><%= file.name %></a>
-				<form action="/delete-file/<%= file.uuid %>" method="post" style="display: inline;">
+				<form action="/drive/delete-file/<%= file.uuid %>" method="post" style="display: inline;">
 					<button type="submit" onclick="return confirm('Are you sure you want to delete <%= file.name %>')">Delete</button>
 				</form>
 			</div>

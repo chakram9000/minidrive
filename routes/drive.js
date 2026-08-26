@@ -2,8 +2,7 @@
 // i tried to copy google drive's routing, play around with their site to find out how it works.
 //
 
-// @TODO: removing folders
-// @TODO: removing files
+// @TODO!!: check ownership before relevant operations
 // @TODO: renaming folders
 // @TODO: renaming files
 import { Router } from "express";
@@ -36,7 +35,7 @@ router.get("/folders/home", validateAuth, async (req, res) => {
     // a direct attribute to be unique.
     const subdrive = await prisma.directory.findFirst({
       where: {
-        rootOwner: { id: req.user.id },
+        ownerId: req.user.id,
       },
       include: {
         files: true,
@@ -161,7 +160,7 @@ router.post(
         },
       });
 
-      res.redirect(req.baseUrl + "/folders/" + req.params.folder_id);
+      res.redirect(req.baseUrl + "/folders/" + parentFolderID);
     } catch (err) {
       console.error(err);
       return res
@@ -202,7 +201,7 @@ router.post(
           .send("There exists a directory with the same name.");
       }
 
-      const newDir = await prisma.directory.create({
+      await prisma.directory.create({
         data: {
           name: folder_name,
           parentDirId: parentFolderID,
@@ -210,7 +209,7 @@ router.post(
         },
       });
 
-      res.redirect(req.baseUrl + "/folders/" + newDir.id);
+      res.redirect(req.baseUrl + "/folders/" + parentFolderID);
     } catch (err) {
       console.error(err);
       return res
@@ -219,6 +218,35 @@ router.post(
     }
   },
 );
+
+router.post("/delete-file/:uuid", validateAuth, async (req, res) => {
+  try {
+    const fileUUID = req.params.uuid;
+
+    // delete row first to ensure its existence, it will just throw if not existing.
+    const file = await prisma.file.delete({
+      where: {
+        uuid: fileUUID,
+      },
+    });
+
+    // then delete from storage
+    const filePath = path.join("uploads/", file.uuid);
+    console.log(`Deleteing ${filePath}`); // @TEMP ?
+    unlink(filePath, (err) => {
+      if (err) {
+        console.error(`Error while trying to delete ${file.uuid}: ${err}`);
+      }
+    });
+
+    res.redirect(req.baseUrl + "/folders/" + file.parentDirId);
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .send("An error occured, we couldn't delete that file...");
+  }
+});
 
 router.post("/delete-folder/:id", validateAuth, async (req, res) => {
   try {
@@ -230,7 +258,7 @@ router.post("/delete-folder/:id", validateAuth, async (req, res) => {
     // first, get all files nested inside this dir,
     // we get them using a recursive CTE (needs a raw query).
     // this is to get all of their uuids to remove them from the actual storage.
-    const files = await prisma.$queryRaw(`
+    const files = await prisma.$queryRaw`
 			WITH RECURSIVE nested_dirs AS (
 				SELECT id FROM "Directory"
 				WHERE id = ${dirId}
@@ -242,15 +270,16 @@ router.post("/delete-folder/:id", validateAuth, async (req, res) => {
 			)
 			SELECT * FROM "File"
 			WHERE "parentDirId" IN (SELECT id FROM nested_dirs)
-		`);
+		`;
 
     // then, delete them from storage
     files.forEach((file) => {
-      const filePath = path.join("../uploads/", file.uuid);
+      const filePath = path.join("uploads/", file.uuid);
       console.log(`Deleteing ${filePath}`); // @TEMP ?
       unlink(filePath, (err) => {
         // we just print the error and continue.
-        console.error(`Error while trying to delete ${file.uuid}: ${err}`);
+        if (err)
+          console.error(`Error while trying to delete ${file.uuid}: ${err}`);
       });
     });
 

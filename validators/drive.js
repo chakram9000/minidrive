@@ -5,7 +5,7 @@ export const validateFolderCreationForm = [
     .trim()
     .notEmpty()
     .withMessage("Folder name is required")
-    .isAlphanumeric(undefined, { ignore: /[\s_]/ })
+    .isAlphanumeric(undefined, { ignore: /[\s_]/g }) // allow whitespace and underscores
     .withMessage(
       "Folder name can only contain alphanumeric, whitespace, and _ characters",
     )
