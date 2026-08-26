@@ -41,15 +41,15 @@ router.get("/folders/home", validateAuth, async (req, res) => {
         },
       },
     });
-    const subdrive = userInDB.rootDir;
 
+    const subdrive = userInDB.rootDir;
     if (!subdrive) {
       throw Error(
         `couldn't find the root drive somehow, user id is ${req.user.id}`,
       );
     }
 
-    res.render("drive", { subdrive });
+    res.render("drive", { subdrive, isRoot: true });
   } catch (err) {
     console.error(err);
     return res
@@ -78,7 +78,7 @@ router.get("/folders/:id", validateAuth, async (req, res) => {
     if (!subdrive)
       throw Error(`couldn't find the subdrive somehow, id is ${req.params.id}`);
 
-    res.render("drive", { subdrive });
+    res.render("drive", { subdrive, isRoot: subdrive.parentDirId === null });
   } catch (err) {
     console.error(err);
     return res
