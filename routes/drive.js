@@ -97,17 +97,11 @@ router.get("/files/:uuid", validateAuth, async (req, res) => {
       return res.status(401).send("Unauthorized.");
     }
 
-    // @TODO!: use res.download instead of the rest of this as it's safer and simpler
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${fileMetadata.name}"`,
-    );
-
-    const rootPath = path.join(import.meta.dirname, "..", "uploads/");
-    res.sendFile(req.params.uuid, { root: rootPath }, (err) => {
+    const filePath = path.join("uploads/", req.params.uuid);
+    res.download(filePath, fileMetadata.name, (err) => {
       if (err) {
         console.error("Error sending file:", err);
-        res.status(500).send("File not found!");
+        res.status(500).send("Error sending file.");
       }
     });
   } catch (err) {
