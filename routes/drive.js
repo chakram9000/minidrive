@@ -85,7 +85,7 @@ router.get("/folders/:id", validateAuth, async (req, res) => {
   }
 });
 
-router.get("/files/:uuid", validateAuth, async (req, res) => {
+router.get("/download/:uuid", validateAuth, async (req, res) => {
   try {
     const fileMetadata = await prisma.file.findUnique({
       where: {
@@ -109,6 +109,32 @@ router.get("/files/:uuid", validateAuth, async (req, res) => {
     return res
       .status(500)
       .send("An error occured, we couldn't upload that file...");
+  }
+});
+
+router.get("/file-info/:uuid", validateAuth, async (req, res) => {
+  try {
+    const file = await prisma.file.findUnique({
+      where: {
+        uuid: req.params.uuid,
+      },
+      include: {
+        owner: true,
+      },
+    });
+
+    if (file.ownerId !== req.user.id) {
+      return res.status(401).send("Unauthorized.");
+    }
+
+    res.render("file-info", {
+      file,
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .send("An error occured, we couldn't view that file...");
   }
 });
 

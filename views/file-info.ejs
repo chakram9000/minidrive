@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minidrive</title>
+		<%- include("components/meta.ejs") %>
+</head>
+<body>
+		<main>
+			<a href="/drive/folders/<%= file.parentDirId %>">&lt;- Go back</a>
+			
+			<h1><%= file.name %></h1>
+			<p><b>Size:</b> <%= file.size %>B</p>
+			<p><b>Uploaded at:</b> <%= file.createdAt %></p>
+			<p><b>Owner:</b> <%= file.owner.username %></p>
+		</main>
+</body>
+</html>
+

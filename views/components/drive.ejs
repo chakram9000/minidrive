@@ -12,7 +12,7 @@
 			<form 
 				method="post"
 				action="/drive/rename-folder/<%= subdir.id %>"
-				onsubmit="const p=prompt('Enter new name:', '<%= subdir.name %>}');if(p==null)return false;this.folder_name.value=p"
+				onsubmit="const p=prompt('Enter new name:', '<%= subdir.name %>');if(p==null)return false;this.folder_name.value=p"
 				style="display: inline;"
 			>
 				<input type="hidden" name="folder_name">
@@ -25,7 +25,7 @@
 	<% }) %>
 	<% subdrive.files.forEach((file) => { %>
 		<div class="file">
-			<a class="file-link" href="/drive/files/<%= file.uuid %>"><%= file.name %></a>
+			<p class="file-title"><%= file.name %></p>
 			<form 
 				method="post"
 				action="/drive/rename-file/<%= file.uuid %>"
@@ -38,6 +38,8 @@
 			<form action="/drive/delete-file/<%= file.uuid %>" method="post" style="display: inline;">
 				<button type="submit" onclick="return confirm('Are you sure you want to delete <%= file.name %>')">Delete</button>
 			</form>
+			<a href="/drive/file-info/<%= file.uuid %>">Info</a>
+			<a href="/drive/download/<%= file.uuid %>">Download</a>
 		</div>
 	<% }) %>
 <% } %>
