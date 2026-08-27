@@ -10,7 +10,7 @@
 			<% if (locals.user) { %>
 				<p>hello <%= user.username %>, you can access your drive <span><a href="/drive">here</a></span>.</p>
 			<% } else { %>
-				<p>Please login to access your minidrive.</p>
+			<p>Please <a href="/login">login</a> to access your minidrive.</p>
 			<% } %>
 		</main>
 </body>

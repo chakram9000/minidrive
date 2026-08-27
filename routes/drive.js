@@ -10,6 +10,12 @@ import path from "path";
 import { validateFileName, validateFolderName } from "../validators/drive.js";
 import { matchedData, validationResult } from "express-validator";
 import { unlink } from "fs";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY,
+);
 
 const storage = multer.diskStorage({
   destination: "uploads/",
