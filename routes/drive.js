@@ -138,6 +138,87 @@ router.get("/file-info/:uuid", validateAuth, async (req, res) => {
   }
 });
 
+router.get("/file-move-up/:uuid", validateAuth, async (req, res) => {
+  try {
+    const fileUUID = req.params.uuid;
+
+    const file = await prisma.file.findUnique({
+      where: {
+        uuid: fileUUID,
+      },
+      include: {
+        parentDir: true,
+      },
+    });
+
+    if (file.ownerId !== req.user.id) {
+      return res.status(401).send("Unauthorized.");
+    }
+
+    const isParentRoot = file.parentDir.parentDirId === null;
+    if (isParentRoot) {
+      return res.status(400).send("Can't do that!");
+    }
+
+    await prisma.file.update({
+      where: {
+        uuid: fileUUID,
+      },
+      data: {
+        parentDirId: file.parentDir.parentDirId,
+      },
+    });
+
+    res.redirect(req.baseUrl + "/folders/" + file.parentDirId);
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .send("An error occured, we couldn't move that file up...");
+  }
+});
+
+router.get("/folder-move-up/:id", validateAuth, async (req, res) => {
+  try {
+    const folderId = Number.parseInt(req.params.id);
+
+    const folder = await prisma.directory.findUnique({
+      where: {
+        id: folderId,
+      },
+      include: {
+        parentDir: true,
+      },
+    });
+
+    if (folder.ownerId !== req.user.id) {
+      return res.status(401).send("Unauthorized.");
+    }
+
+    const isSelfOrParentRoot =
+      !folder.parentDir || folder.parentDir.parentDirId === null;
+    if (isSelfOrParentRoot) {
+      return res.status(400).send("Can't do that!");
+    }
+
+    await prisma.directory.update({
+      where: {
+        id: folderId,
+      },
+      data: {
+        parentDirId: folder.parentDir.id,
+      },
+    });
+
+    res.redirect(req.baseUrl + "/folders/" + folder.parentDirId);
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .send("An error occured, we couldn't move that folder up...");
+  }
+});
+
 router.post(
   "/upload-file/:parent_id",
   validateAuth,
