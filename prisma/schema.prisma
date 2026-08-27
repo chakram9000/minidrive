@@ -25,6 +25,7 @@ model User {
 model Directory {
   id                    Int         @id @default(autoincrement())
   name                  String
+  createdAt             DateTime    @default(now())
   files                 File[]
   subDirs               Directory[] @relation("dir")
   parentDir             Directory?  @relation("dir", fields: [parentDirId], references: [id], onDelete: Cascade)
@@ -40,6 +41,7 @@ model File {
   uuid        String    @unique @db.Uuid // no default, we set this to the uploaded file's generated uuid
   name        String
   size        Int // Bytes 
+  createdAt   DateTime  @default(now())
   parentDir   Directory @relation(fields: [parentDirId], references: [id], onDelete: Cascade)
   parentDirId Int
   owner       User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
