@@ -23,16 +23,19 @@ model User {
 }
 
 model Directory {
-  id                    Int         @id @default(autoincrement())
-  name                  String
-  createdAt             DateTime    @default(now())
-  files                 File[]
-  subDirs               Directory[] @relation("dir")
-  parentDir             Directory?  @relation("dir", fields: [parentDirId], references: [id], onDelete: Cascade)
-  parentDirId           Int?
-  owner                 User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId               Int
-  ownerOfThisIfItsARoot User?       @relation("root") // useless, but prisma keeps screaming at me
+  id          Int         @id @default(autoincrement())
+  name        String
+  createdAt   DateTime    @default(now())
+  files       File[]
+  subDirs     Directory[] @relation("dir")
+  parentDir   Directory?  @relation("dir", fields: [parentDirId], references: [id], onDelete: Cascade)
+  parentDirId Int?
+  owner       User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     Int
+
+  // useless mandatory relations...
+  ownerOfThisIfItsARoot User?            @relation("root")
+  sharedDirectory       SharedDirectory?
 
   @@index([parentDirId]) // needed mainly for querying all nested dirs and files, but also helps in most operations.
 }
@@ -48,6 +51,14 @@ model File {
   ownerId     Int
 
   @@index([parentDirId]) // needed mainly for querying all nested dirs and files, but also helps in most operations.
+}
+
+model SharedDirectory {
+  uuid      String    @unique @db.Uuid
+  // unique to avoid having the same dir shared multiple times, this will -however- require constant deletion of expired shares.
+  dirId     Int       @unique
+  dir       Directory @relation(fields: [dirId], references: [id])
+  expiresAt DateTime
 }
 
 model Session {
