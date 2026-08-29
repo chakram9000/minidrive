@@ -146,6 +146,7 @@ router.get("/file-info/:uuid", validateAuth, async (req, res) => {
   }
 });
 
+/* Disabled for now
 router.get("/file-move-up/:uuid", validateAuth, async (req, res) => {
   try {
     const fileUUID = req.params.uuid;
@@ -226,6 +227,7 @@ router.get("/folder-move-up/:id", validateAuth, async (req, res) => {
       .send("An error occured, we couldn't move that folder up...");
   }
 });
+*/
 
 router.post(
   "/upload-file/:parent_id",
