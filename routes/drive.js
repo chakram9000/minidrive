@@ -5,23 +5,9 @@
 import { Router } from "express";
 import { validateAuth } from "../validators/auth.js";
 import { prisma } from "../lib/prisma.js";
-import multer from "multer";
 import { validateFileName, validateFolderName } from "../validators/drive.js";
 import { matchedData, validationResult } from "express-validator";
-import { createClient } from "@supabase/supabase-js";
-
-const SUPABASE_BUCKET_NAME = "minidrive";
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY,
-);
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB in B
-  },
-});
+import { upload, supabase } from "../lib/storage.js";
 
 const router = Router();
 
@@ -101,7 +87,7 @@ router.get("/download/:uuid", validateAuth, async (req, res) => {
     }
 
     const { data, error } = await supabase.storage
-      .from(SUPABASE_BUCKET_NAME)
+      .from(process.env.SUPABASE_BUCKET_NAME)
       .createSignedUrl(req.params.uuid, 30, { download: fileMetadata.name });
 
     if (error) {
@@ -269,7 +255,7 @@ router.post(
       const newFileUUID = crypto.randomUUID();
 
       const { error } = await supabase.storage
-        .from(SUPABASE_BUCKET_NAME)
+        .from(process.env.SUPABASE_BUCKET_NAME)
         .upload(newFileUUID, req.file.buffer);
 
       if (error) {
@@ -474,7 +460,7 @@ router.post("/delete-file/:uuid", validateAuth, async (req, res) => {
 
     // then delete from storage
     const { error } = await supabase.storage
-      .from(SUPABASE_BUCKET_NAME)
+      .from(process.env.SUPABASE_BUCKET_NAME)
       .remove([fileToDelete.uuid]);
 
     if (error) {
@@ -528,7 +514,7 @@ router.post("/delete-folder/:id", validateAuth, async (req, res) => {
     // then, delete them from storage
     if (files && files.length > 0) {
       const { error } = await supabase.storage
-        .from(SUPABASE_BUCKET_NAME)
+        .from(process.env.SUPABASE_BUCKET_NAME)
         .remove(files.map((file) => file.uuid));
 
       if (error) {
