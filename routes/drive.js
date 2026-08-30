@@ -102,7 +102,7 @@ router.get("/download/:uuid", validateAuth, async (req, res) => {
     console.error(err);
     return res
       .status(500)
-      .send("An error occured, we couldn't upload that file...");
+      .send("An error occured, we couldn't download that file...");
   }
 });
 
@@ -129,6 +129,24 @@ router.get("/file-info/:uuid", validateAuth, async (req, res) => {
     return res
       .status(500)
       .send("An error occured, we couldn't view that file...");
+  }
+});
+
+router.get("/share/:dir_id", validateAuth, async (req, res) => {
+  try {
+    const dirId = Number.parseInt(req.params.dir_id);
+    const dir = await prisma.directory.findUniqueOrThrow({
+      where: {
+        id: dirId,
+      },
+    });
+
+    res.render("share", {
+      dirMetadata: dir,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("An error occured.");
   }
 });
 

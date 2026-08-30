@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minidrive</title>
+		<%- include("components/meta.ejs") %>
+</head>
+<body>
+		<main>
+			<h1>This is a shared drive. <i>(read-only)</i></h1>
+			<section id="drive">
+			<% if (!isRoot) { %>
+				<a href="/share/<%= uuid %>/<%= subdrive.parentDirId %>">../</a>
+			<% } %>
+			
+			<% if (!subdrive.subDirs.length && !subdrive.files.length) { %>
+				<p>This directory is empty.</p>
+			<% } else { %>
+				<% subdrive.subDirs.forEach((subdir) => { %>
+					<div class="dir">
+						<a class="dir-link" href="/drive/folders/<%= subdir.id %>"><%= subdir.name %>/</a>
+					</div>
+				<% }) %>
+				<% subdrive.files.forEach((file) => { %>
+					<div class="file">
+						<p class="file-title"><%= file.name %></p>
+						<a href="/share/<%= uuid %>/download/<%= file.uuid %>">Download</a>
+					</div>
+				<% }) %>
+			<% } %>
+			</section>
+		</main>
+</body>
+</html>
+

@@ -18,6 +18,7 @@
 				<input type="hidden" name="folder_name">
 				<button>Edit name</button>
 			</form>
+			<a href="/drive/share/<%= subdir.id %>">Share</a>
 			<form action="/drive/delete-folder/<%= subdir.id %>" method="post" style="display: inline;">
 				<button type="submit" onclick="return confirm('Are you sure you want to delete <%= subdir.name %>/')">Delete</button>
 			</form>

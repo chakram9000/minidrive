@@ -15,6 +15,7 @@ setup_passport();
 const app = express();
 
 // @TODO!: revise when is <%= (escaping) used throughout the template files.
+// @TODO: error page?
 app.set("views", path.join(import.meta.dirname, "views"));
 app.set("view engine", "ejs");
 
