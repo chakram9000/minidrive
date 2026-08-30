@@ -9,6 +9,7 @@ import passport from "passport";
 import authRouter from "./routes/auth.js";
 import indexRouter from "./routes/index.js";
 import driveRouter from "./routes/drive.js";
+import sharedDirectoriesRouter from "./routes/share.js";
 
 setup_passport();
 
@@ -43,6 +44,7 @@ app.use((req, res, next) => {
 app.get("/", indexRouter);
 app.use("/", authRouter);
 app.use("/drive", driveRouter);
+app.use("/share", sharedDirectoriesRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, (err) => {

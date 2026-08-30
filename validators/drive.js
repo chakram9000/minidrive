@@ -27,3 +27,17 @@ export const validateFileName = body("file_name")
     return true;
   })
   .escape();
+
+export const validateShareDir = [
+  body("expires_at")
+    .isDate()
+    .withMessage("Must be a valid date")
+    .custom((value) => {
+      const date = new Date(value);
+      if (date.getTime() <= Date.now() + 1 * 60 * 60 * 1000) {
+        throw new Error("Must be at least 1 hour in the future");
+      }
+
+      return true;
+    }),
+];

@@ -9,7 +9,7 @@
 			<h1>This is a shared drive. <i>(read-only)</i></h1>
 			<section id="drive">
 			<% if (!isRoot) { %>
-				<a href="/share/<%= uuid %>/<%= subdrive.parentDirId %>">../</a>
+				<a href="/share/<%= uuid %>/folders/<%= subdrive.parentDirId %>">../</a>
 			<% } %>
 			
 			<% if (!subdrive.subDirs.length && !subdrive.files.length) { %>
@@ -17,7 +17,7 @@
 			<% } else { %>
 				<% subdrive.subDirs.forEach((subdir) => { %>
 					<div class="dir">
-						<a class="dir-link" href="/drive/folders/<%= subdir.id %>"><%= subdir.name %>/</a>
+						<a class="dir-link" href="/share/<%= uuid %>/folders/<%= subdir.id %>"><%= subdir.name %>/</a>
 					</div>
 				<% }) %>
 				<% subdrive.files.forEach((file) => { %>

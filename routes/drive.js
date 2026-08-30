@@ -5,7 +5,11 @@
 import { Router } from "express";
 import { validateAuth } from "../validators/auth.js";
 import { prisma } from "../lib/prisma.js";
-import { validateFileName, validateFolderName } from "../validators/drive.js";
+import {
+  validateFileName,
+  validateFolderName,
+  validateShareDir,
+} from "../validators/drive.js";
 import { matchedData, validationResult } from "express-validator";
 import { upload, supabase } from "../lib/storage.js";
 
@@ -23,7 +27,12 @@ router.get("/folders/home", validateAuth, async (req, res) => {
         rootDir: {
           include: {
             files: true,
-            subDirs: true,
+            subDirs: {
+              include: {
+                sharedDirectory: true,
+              },
+            },
+            sharedDirectory: true,
           },
         },
       },
@@ -54,7 +63,12 @@ router.get("/folders/:id", validateAuth, async (req, res) => {
       },
       include: {
         files: true,
-        subDirs: true,
+        subDirs: {
+          include: {
+            sharedDirectory: true,
+          },
+        },
+        sharedDirectory: true,
       },
     });
 
@@ -141,9 +155,11 @@ router.get("/share/:dir_id", validateAuth, async (req, res) => {
       },
     });
 
-    res.render("share", {
-      dirMetadata: dir,
-    });
+    if (dir.ownerId !== req.user.id) {
+      return res.status(401).send("Unauthorized.");
+    }
+
+    res.render("share", { dir });
   } catch (err) {
     console.error(err);
     return res.status(500).send("An error occured.");
@@ -556,5 +572,46 @@ router.post("/delete-folder/:id", validateAuth, async (req, res) => {
       .send("An error occured, we couldn't delete that directory...");
   }
 });
+
+router.post(
+  "/share/:dir_id",
+  validateAuth,
+  validateShareDir,
+  async (req, res) => {
+    try {
+      const result = validationResult(req);
+      if (!result.isEmpty()) {
+        // @TODO: put errors next to the form
+        return res.status(400).send(result.array());
+      }
+
+      const { expires_at } = matchedData(req);
+
+      const dirId = Number.parseInt(req.params.dir_id);
+      const dir = await prisma.directory.findUniqueOrThrow({
+        where: {
+          id: dirId,
+        },
+      });
+
+      if (dir.ownerId !== req.user.id) {
+        return res.status(401).send("Unauthorized.");
+      }
+
+      const sharedDir = await prisma.sharedDirectory.create({
+        data: {
+          uuid: crypto.randomUUID(),
+          dirId: dirId,
+          expiresAt: new Date(expires_at),
+        },
+      });
+
+      res.render("shared-success", { uuid: sharedDir.uuid });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("An error occured.");
+    }
+  },
+);
 
 export default router;

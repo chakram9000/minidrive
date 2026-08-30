@@ -3,6 +3,7 @@
 //
 
 // @TODO: redirect owner of shared dir to the original one, or something else, to allow him to edit.
+// @TODO: unsharing
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { supabase } from "../lib/storage.js";
@@ -18,7 +19,7 @@ router.get("/:uuid", validateSharedUUID, async (req, res) => {
   });
 });
 
-router.get("/:uuid/:id", validateSharedUUID, async (req, res) => {
+router.get("/:uuid/folders/:id", validateSharedUUID, async (req, res) => {
   try {
     const sharedDirMetadata = req.sharedDirMetadata;
 
@@ -33,11 +34,11 @@ router.get("/:uuid/:id", validateSharedUUID, async (req, res) => {
       });
     }
 
-    // --- Then check n get the actual requested subdir.
+    // --- Then check and get the actual requested subdir.
     // @NOTE: this is a terrible way of doing it.
     // We fetch all nested subdirs in the main shared one to make sure that the requested one IS nested,
-    // so that he can't access other private dirs. (:id in this route is the absolute id, we don't have relative ones.)
-    const allNestedSubdirs = await prisma.directory.$queryRaw`
+    // so that he can't access other private dirs. (id param in this route is the absolute id, we don't have relative ones.)
+    const allNestedSubdirs = await prisma.$queryRaw`
 			WITH RECURSIVE nested_dirs AS (
 				SELECT id FROM "Directory"
 				WHERE id = ${sharedDirMetadata.dirId}
@@ -50,7 +51,7 @@ router.get("/:uuid/:id", validateSharedUUID, async (req, res) => {
 			SELECT id FROM nested_dirs;
 		`;
 
-    if (!allNestedSubdirs.includes({ id: requestedSubdirID })) {
+    if (!allNestedSubdirs.some((subdir) => subdir.id === requestedSubdirID)) {
       return res
         .status(404)
         .send("That shared link doesn't exist, or has expired.");
@@ -92,11 +93,13 @@ router.get(
 
       const { data, error } = await supabase.storage
         .from(process.env.SUPABASE_BUCKET_NAME)
-        .createSignedUrl(req.params.uuid, 30, { download: fileMetadata.name });
+        .createSignedUrl(req.params.file_uuid, 30, {
+          download: fileMetadata.name,
+        });
 
       if (error) {
         console.error(
-          `Error while downloading file ${req.params.uuid}: ${error}`,
+          `Error while downloading file ${req.params.file_uuid}: ${error}`,
         );
         return res.status(500).send("Couldn't download that file...");
       }

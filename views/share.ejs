@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minidrive</title>
+		<%- include("components/meta.ejs") %>
+</head>
+<body>
+		<a href="/drive/folders/<%= dir.parentDirId %>">&lt;- Go back</a>
+
+    <h1>Share '<%= dir.name %>/'</h1>
+		<h2>Share this folder with others. <b><i>Anyone</i></b> with the link will have read access to it.</h2>
+    <form action="/drive/share/<%= dir.id %>" method="post">
+        <label for="expires_at">Expires in:</label>
+				<input type="date" name="expires_at" id="expires_at" min="<%= new Date().toISOString().split('T')[0] %>">
+        <input type="submit" value="Share">
+    </form>
+</body>
+</html>
