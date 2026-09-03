@@ -12,7 +12,12 @@ router.get("/signup", (_, res) => {
 });
 
 router.get("/login", (req, res) => {
-  res.render("login", { errorsMessages: req.session.errors });
+  // remove duplicates because passport makes them for some reason.
+  const errorMessages = [...new Set(req.session.messages)];
+  // then reset the session messages, or else old errors will still appear!
+  req.session.messages = [];
+
+  res.render("login", { errorMessages });
 });
 
 router.get("/logout", (req, res, next) => {

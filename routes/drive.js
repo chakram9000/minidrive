@@ -12,6 +12,7 @@ import {
 } from "../validators/drive.js";
 import { matchedData, validationResult } from "express-validator";
 import { upload, supabase } from "../lib/storage.js";
+import crypto from "node:crypto";
 
 const router = Router();
 
