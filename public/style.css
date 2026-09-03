@@ -1,24 +1,750 @@
+/* ============================================
+   Minidrive — Google Drive-inspired stylesheet
+   ============================================ */
+
+:root {
+  --blue: #1a73e8;
+  --blue-hover: #1557b0;
+  --blue-light: #e8f0fe;
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --border: #dadce0;
+  --text: #202124;
+  --text-secondary: #5f6368;
+  --text-muted: #80868b;
+  --green: #188038;
+  --red: #d93025;
+  --red-hover: #c5221f;
+  --icon-folder: #5f6368;
+  --icon-file: #1a73e8;
+  --row-hover: #f1f3f4;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 6px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --radius: 8px;
+  --radius-sm: 4px;
+}
+
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
+
+body {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+/* ---- Header / Toolbar ---- */
+
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.header-brand:hover {
+  text-decoration: none;
+  color: var(--blue);
+}
+.header-brand .material-icons {
+  font-size: 28px;
+  color: var(--blue);
+}
+
+.header-spacer {
+  flex: 1;
+}
+
+.header-user {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.header-user strong {
+  color: var(--text);
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-nav a {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.btn-text:hover {
+  background: var(--row-hover);
+  color: var(--text);
+}
+
+/* ---- Main content container ---- */
+
+.main-content {
+  flex: 1;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 24px 48px;
+}
+
+/* ---- Page titles ---- */
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.page-title .material-icons {
+  font-size: 28px;
+  color: var(--blue);
+}
+
+/* ---- Action bar (upload / create folder) ---- */
+
+.action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.action-bar form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  transition: box-shadow 0.15s;
+}
+.action-bar form:focus-within {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--blue);
+}
+
+.action-bar label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.action-bar label .material-icons {
+  font-size: 18px;
+}
+
+.action-bar input[type="text"] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.15s;
+}
+.action-bar input[type="text"]:focus {
+  border-color: var(--blue);
+}
+
+/* File input styling */
+.file-input-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+.file-input-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.file-input-label .material-icons {
+  font-size: 18px;
+}
+.file-input-label:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-light);
+}
+.file-input-name {
+  font-size: 13px;
+  color: var(--text);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Buttons ---- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+  white-space: nowrap;
+}
+.btn .material-icons {
+  font-size: 18px;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--blue-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-outline {
+  background: var(--surface);
+  color: var(--blue);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover {
+  background: var(--blue-light);
+  border-color: var(--blue);
+}
+
+.btn-danger {
+  background: none;
+  color: var(--red);
+  border: 1px solid transparent;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.btn-danger:hover {
+  background: #fce8e6;
+  border-color: var(--red);
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.btn-icon:hover {
+  background: var(--row-hover);
+  color: var(--text);
+}
+.btn-icon .material-icons {
+  font-size: 20px;
+}
+
+/* ---- Drive listing ---- */
 
 #drive {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 0.5rem;
   width: 100%;
-  padding: 0.5rem;
 }
 
-.dir,
-.file {
+.breadcrumb-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.breadcrumb-back:hover {
+  background: var(--row-hover);
+  color: var(--text);
+  text-decoration: none;
+}
+.breadcrumb-back .material-icons {
+  font-size: 18px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--text-muted);
+}
+.empty-state .material-icons {
+  font-size: 64px;
+  display: block;
+  margin: 0 auto 16px;
+  opacity: 0.4;
+}
+.empty-state p {
+  font-size: 15px;
+}
+
+/* Row separator */
+.drive-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  padding: 12px 12px 6px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+.drive-section-label:first-child {
+  border-top: none;
+  margin-top: 0;
+}
+
+/* ---- File / Directory rows ---- */
+
+.dir-row,
+.file-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  transition: background 0.1s;
+}
+.dir-row:hover,
+.file-row:hover {
+  background: var(--row-hover);
 }
 
-.dir-link,
-.file-title {
-  margin-right: auto;
+.row-icon .material-icons {
+  font-size: 22px;
+}
+.row-icon.folder .material-icons {
+  color: var(--icon-folder);
+}
+.row-icon.file .material-icons {
+  color: var(--icon-file);
+}
+
+.row-name {
+  flex: 1;
+  min-width: 0;
+}
+.row-name a {
+  font-size: 14px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.row-name a:hover {
+  color: var(--blue);
+  text-decoration: none;
+}
+.row-name .name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-shared-badge {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--green);
+  background: #e6f4ea;
+  padding: 2px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+.row-shared-badge .material-icons {
+  font-size: 14px;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.dir-row:hover .row-actions,
+.file-row:hover .row-actions {
+  opacity: 1;
+}
+
+.row-actions .btn-icon[title]::after {
+  /* tooltip placeholder — pure CSS */
+}
+
+/* ---- Inline forms (rename) ---- */
+
+.inline-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.inline-form input[type="text"] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  width: 160px;
+  transition: border-color 0.15s;
+}
+.inline-form input[type="text"]:focus {
+  border-color: var(--blue);
+}
+
+/* ---- Cards ---- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 32px;
+}
+
+.card-centered {
+  max-width: 400px;
+  margin: 64px auto;
+}
+
+.card h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.card .subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+/* ---- Forms ---- */
+
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="date"],
+.form-group input[type="email"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.form-group input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px var(--blue-light);
+}
+
+.form-submit {
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* ---- Errors ---- */
+
+.error-list {
+  background: #fce8e6;
+  border: 1px solid var(--red);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+.error-list ul {
+  list-style: none;
+  padding: 0;
+}
+.error-list li {
+  font-size: 13px;
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.error-list li + li {
+  margin-top: 4px;
+}
+
+/* ---- Landing page ---- */
+
+.hero {
+  text-align: center;
+  padding: 80px 24px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.hero .material-icons.hero-icon {
+  font-size: 80px;
+  color: var(--blue);
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+.hero h1 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.hero p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+/* ---- File info page ---- */
+
+.info-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  font-size: 14px;
+}
+.info-grid dt {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.info-grid dd {
+  color: var(--text);
+}
+
+.info-card .page-title {
+  margin-bottom: 16px;
+}
+.info-card .info-actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 8px;
+}
+
+/* ---- Share page ---- */
+
+.share-card .share-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+.share-card .share-desc b {
+  color: var(--text);
+}
+.share-card .share-desc i {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--green);
+}
+
+/* ---- Shared success ---- */
+
+.success-card {
+  text-align: center;
+}
+.success-card .material-icons.success-icon {
+  font-size: 56px;
+  color: var(--green);
+  margin-bottom: 16px;
+}
+.success-card .share-link-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 13px;
+  color: var(--text);
+  word-break: break-all;
+  margin: 16px 0;
+  display: inline-block;
+}
+
+/* ---- Shared drive (read-only) ---- */
+
+.shared-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blue-light);
+  color: var(--blue);
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+.shared-banner .material-icons {
+  font-size: 20px;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .header {
+    padding: 0 16px;
+    gap: 8px;
+  }
+  .main-content {
+    padding: 16px 16px 32px;
+  }
+  .action-bar {
+    flex-direction: column;
+  }
+  .action-bar form {
+    width: 100%;
+  }
+  .action-bar input[type="text"] {
+    flex: 1;
+    width: auto;
+  }
+  .row-actions {
+    opacity: 1;
+  }
+  .hero h1 {
+    font-size: 28px;
+  }
+  .card-centered {
+    margin: 32px 16px;
+  }
+}
+
+/* ---- Utility ---- */
+
+.text-muted {
+  color: var(--text-muted);
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.mt-1 {
+  margin-top: 8px;
+}
+.mt-2 {
+  margin-top: 16px;
+}
+.mt-3 {
+  margin-top: 24px;
+}
+.mb-1 {
+  margin-bottom: 8px;
+}
+.mb-2 {
+  margin-bottom: 16px;
+}
+.mb-3 {
+  margin-bottom: 24px;
+}
+.hidden {
+  display: none;
 }

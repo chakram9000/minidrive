@@ -1,18 +1,59 @@
-<!DOCTYPE html>
-<html>
+<%
+function formatSize(bytes) {
+	if (bytes < 1024) return bytes + ' B';
+	const units = ['KB', 'MB', 'GB', 'TB'];
+	let i = -1;
+	do {
+		bytes /= 1024;
+		i++;
+	} while (bytes >= 1024 && i < units.length - 1);
+	return bytes.toFixed(1) + ' ' + units[i];
+}
+%><!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Minidrive</title>
+    <title><%= file.name %> - Minidrive</title>
 		<%- include("components/meta.ejs") %>
 </head>
 <body>
-		<main>
-			<a href="/drive/folders/<%= file.parentDirId %>">&lt;- Go back</a>
-			
-			<h1><%= file.name %></h1>
-			<p><b>Size:</b> <%= file.size %>B</p>
-			<p><b>Uploaded at:</b> <%= file.createdAt %></p>
-			<p><b>Owner:</b> <%= file.owner.username %></p>
+		<header class="header">
+			<a class="header-brand" href="/drive">
+				<span class="material-icons">cloud_queue</span>
+				<span>Minidrive</span>
+			</a>
+			<div class="header-spacer"></div>
+			<div class="header-nav">
+				<span class="header-user"><%= user.username %></span>
+				<a class="btn-text" href="/logout">Log out</a>
+			</div>
+		</header>
+
+		<main class="main-content">
+			<div class="card info-card">
+				<a class="breadcrumb-back" href="/drive/folders/<%= file.parentDirId %>">
+					<span class="material-icons">arrow_back</span>
+					Back
+				</a>
+				<h1 class="page-title">
+					<span class="material-icons" style="color:var(--icon-file);">description</span>
+					<%= file.name %>
+				</h1>
+				<dl class="info-grid">
+					<dt>Size</dt>
+					<dd><%= formatSize(file.size) %></dd>
+					<dt>Uploaded</dt>
+					<dd><%= new Date(file.createdAt).toLocaleString() %></dd>
+					<dt>Owner</dt>
+					<dd><%= file.owner.username %></dd>
+				</dl>
+				<div class="info-actions">
+					<a class="btn btn-primary" style="display:inline-flex;" href="/drive/download/<%= file.uuid %>">
+						<span class="material-icons">download</span>
+						Download
+					</a>
+					<a class="btn btn-outline" style="display:inline-flex;" href="/drive/folders/<%= file.parentDirId %>">Back to folder</a>
+				</div>
+			</div>
 		</main>
 </body>
 </html>
-

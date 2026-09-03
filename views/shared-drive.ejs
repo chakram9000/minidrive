@@ -1,34 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Minidrive</title>
+    <title>Shared drive - Minidrive</title>
 		<%- include("components/meta.ejs") %>
 </head>
 <body>
-		<main>
-			<h1>This is a shared drive. <i>(read-only)</i></h1>
+		<header class="header">
+			<a class="header-brand" href="/">
+				<span class="material-icons">cloud_queue</span>
+				<span>Minidrive</span>
+			</a>
+			<div class="header-spacer"></div>
+		</header>
+
+		<main class="main-content">
+			<div class="shared-banner">
+				<span class="material-icons">visibility</span>
+				This is a shared drive (read-only)
+			</div>
+
 			<section id="drive">
 			<% if (!isRoot) { %>
-				<a href="/share/<%= uuid %>/folders/<%= subdrive.parentDirId %>">../</a>
+				<a class="breadcrumb-back" href="/share/<%= uuid %>/folders/<%= subdrive.parentDirId %>">
+					<span class="material-icons">arrow_back</span>
+					Back
+				</a>
 			<% } %>
-			
+
 			<% if (!subdrive.subDirs.length && !subdrive.files.length) { %>
-				<p>This directory is empty.</p>
+				<div class="empty-state">
+					<span class="material-icons">folder_open</span>
+					<p>This folder is empty.</p>
+				</div>
 			<% } else { %>
-				<% subdrive.subDirs.forEach((subdir) => { %>
-					<div class="dir">
-						<a class="dir-link" href="/share/<%= uuid %>/folders/<%= subdir.id %>"><%= subdir.name %>/</a>
-					</div>
-				<% }) %>
-				<% subdrive.files.forEach((file) => { %>
-					<div class="file">
-						<p class="file-title"><%= file.name %></p>
-						<a href="/share/<%= uuid %>/download/<%= file.uuid %>">Download</a>
-					</div>
-				<% }) %>
+				<% if (subdrive.subDirs.length) { %>
+					<div class="drive-section-label">Folders</div>
+					<% subdrive.subDirs.forEach((subdir) => { %>
+						<div class="dir-row">
+							<div class="row-icon folder">
+								<span class="material-icons">folder</span>
+							</div>
+							<div class="row-name">
+								<a href="/share/<%= uuid %>/folders/<%= subdir.id %>">
+									<span class="name-text"><%= subdir.name %></span>
+								</a>
+							</div>
+						</div>
+					<% }) %>
+				<% } %>
+				<% if (subdrive.files.length) { %>
+					<div class="drive-section-label">Files</div>
+					<% subdrive.files.forEach((file) => { %>
+						<div class="file-row">
+							<div class="row-icon file">
+								<span class="material-icons">description</span>
+							</div>
+							<div class="row-name">
+								<span class="name-text"><%= file.name %></span>
+							</div>
+							<a class="btn-icon" title="Download" href="/share/<%= uuid %>/download/<%= file.uuid %>">
+								<span class="material-icons">download</span>
+							</a>
+						</div>
+					<% }) %>
+				<% } %>
 			<% } %>
 			</section>
 		</main>
 </body>
 </html>
-

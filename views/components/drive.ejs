@@ -1,54 +1,102 @@
 <section id="drive">
 <% if (!isRoot) { %>
-	<a href="/drive/folders/<%= subdrive.parentDirId %>">../</a>
+	<a class="breadcrumb-back" href="/drive/folders/<%= subdrive.parentDirId %>">
+		<span class="material-icons">arrow_back</span>
+		Back
+	</a>
 <% } %>
 
 <% if (!subdrive.subDirs.length && !subdrive.files.length) { %>
-	<p>This directory is empty.</p>
+	<div class="empty-state">
+		<span class="material-icons">folder_open</span>
+		<p>This folder is empty.</p>
+	</div>
 <% } else { %>
-	<% subdrive.subDirs.forEach((subdir) => { %>
-		<div class="dir">
-			<a class="dir-link" href="/drive/folders/<%= subdir.id %>"><%= subdir.name %>/</a>
-			<form 
-				method="post"
-				action="/drive/rename-folder/<%= subdir.id %>"
-				onsubmit="const p=prompt('Enter new name:', '<%= subdir.name %>');if(p==null)return false;this.folder_name.value=p"
-				style="display: inline;"
-			>
-				<input type="hidden" name="folder_name">
-				<button>Edit name</button>
-			</form>
-			<% if (subdir.sharedDirectory) { %>
-				<button onclick="alert('The share link is: /share/<%= subdir.sharedDirectory.uuid %>')">
-					Shared until <%= new Date(subdir.sharedDirectory.expiresAt).toLocaleString() %>
-				</button>
-			<% } else { %>
-				<a href="/drive/share/<%= subdir.id %>">Share</a>
-			<% } %>
-			<form action="/drive/delete-folder/<%= subdir.id %>" method="post" style="display: inline;">
-				<button type="submit" onclick="return confirm('Are you sure you want to delete <%= subdir.name %>/')">Delete</button>
-			</form>
-		</div>
-	<% }) %>
-	<% subdrive.files.forEach((file) => { %>
-		<div class="file">
-			<p class="file-title"><%= file.name %></p>
-			<form 
-				method="post"
-				action="/drive/rename-file/<%= file.uuid %>"
-				onsubmit="const p=prompt('Enter new name:', <%= JSON.stringify(file.name) %>);if(p==null)return false;this.file_name.value=p"
-				style="display: inline;"
-			>
-				<input type="hidden" name="file_name">
-				<button>Edit name</button>
-			</form>
-			<a href="/drive/file-info/<%= file.uuid %>">Info</a>
-			<a href="/drive/download/<%= file.uuid %>">Download</a>
-			<form action="/drive/delete-file/<%= file.uuid %>" method="post" style="display: inline;">
-				<button type="submit" onclick="return confirm('Are you sure you want to delete <%= file.name %>')">Delete</button>
-			</form>
-		</div>
-	<% }) %>
+	<% if (subdrive.subDirs.length) { %>
+		<div class="drive-section-label">Folders</div>
+		<% subdrive.subDirs.forEach((subdir) => { %>
+			<div class="dir-row">
+				<div class="row-icon folder">
+					<span class="material-icons">folder</span>
+				</div>
+				<div class="row-name">
+					<a href="/drive/folders/<%= subdir.id %>">
+						<span class="name-text"><%= subdir.name %></span>
+					</a>
+				</div>
+				<% if (subdir.sharedDirectory) { %>
+					<span class="row-shared-badge">
+						<span class="material-icons">link</span>
+						Shared
+					</span>
+				<% } %>
+				<div class="row-actions">
+					<form
+						method="post"
+						action="/drive/rename-folder/<%= subdir.id %>"
+						onsubmit="const p=prompt('Enter new name:', '<%= subdir.name %>');if(p==null)return false;this.folder_name.value=p"
+						class="inline-form"
+					>
+						<input type="hidden" name="folder_name">
+						<button class="btn-icon" title="Rename" type="submit">
+							<span class="material-icons">edit</span>
+						</button>
+					</form>
+					<% if (subdir.sharedDirectory) { %>
+						<button class="btn-icon" title="Shared until <%= new Date(subdir.sharedDirectory.expiresAt).toLocaleDateString() %>" onclick="alert('Share link:\n' + window.location.origin + '/share/<%= subdir.sharedDirectory.uuid %>')">
+							<span class="material-icons">link</span>
+						</button>
+					<% } else { %>
+						<a class="btn-icon" title="Share" href="/drive/share/<%= subdir.id %>">
+							<span class="material-icons">share</span>
+						</a>
+					<% } %>
+					<form action="/drive/delete-folder/<%= subdir.id %>" method="post" style="display:inline;">
+						<button class="btn-icon" title="Delete" type="submit" onclick="return confirm('Delete folder &quot;<%= subdir.name %>&quot; and everything inside it?')">
+							<span class="material-icons">delete</span>
+						</button>
+					</form>
+				</div>
+			</div>
+		<% }) %>
+	<% } %>
+
+	<% if (subdrive.files.length) { %>
+		<div class="drive-section-label">Files</div>
+		<% subdrive.files.forEach((file) => { %>
+			<div class="file-row">
+				<div class="row-icon file">
+					<span class="material-icons">description</span>
+				</div>
+				<div class="row-name">
+					<span class="name-text"><%= file.name %></span>
+				</div>
+				<div class="row-actions">
+					<form
+						method="post"
+						action="/drive/rename-file/<%= file.uuid %>"
+						onsubmit="const p=prompt('Enter new name:', <%= JSON.stringify(file.name) %>);if(p==null)return false;this.file_name.value=p"
+						class="inline-form"
+					>
+						<input type="hidden" name="file_name">
+						<button class="btn-icon" title="Rename" type="submit">
+							<span class="material-icons">edit</span>
+						</button>
+					</form>
+					<a class="btn-icon" title="Info" href="/drive/file-info/<%= file.uuid %>">
+						<span class="material-icons">info</span>
+					</a>
+					<a class="btn-icon" title="Download" href="/drive/download/<%= file.uuid %>">
+						<span class="material-icons">download</span>
+					</a>
+					<form action="/drive/delete-file/<%= file.uuid %>" method="post" style="display:inline;">
+						<button class="btn-icon" title="Delete" type="submit" onclick="return confirm('Delete file &quot;<%= file.name %>&quot;?')">
+							<span class="material-icons">delete</span>
+						</button>
+					</form>
+				</div>
+			</div>
+		<% }) %>
+	<% } %>
 <% } %>
 </section>
-

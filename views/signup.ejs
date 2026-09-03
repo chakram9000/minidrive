@@ -1,26 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Signup</title>
+    <title>Sign up - Minidrive</title>
 		<%- include("components/meta.ejs") %>
 </head>
 <body>
-    <h1>Signup</h1>
-		<%- include("components/errors.ejs") %>
-    <form action="/signup" method="post">
-        <label for="username">Username:</label>
-        <input type="text" name="username" id="username" required>
-        <br>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password" required>
-        <br>
-				<label for="password2">Confirm Password:</label>
-        <input type="password" name="password2" id="password2" required>
-        <br>
-        <br>
-        <input type="submit" value="Signup">
-    </form>
-		<a href="/login">Login</a>
+		<div class="card card-centered">
+			<h1>Create account</h1>
+			<p class="subtitle">Start using minidrive</p>
+			<%- include("components/errors.ejs") %>
+			<form action="/signup" method="post">
+				<div class="form-group">
+					<label for="username">Username</label>
+					<input type="text" name="username" id="username" required autofocus>
+				</div>
+				<div class="form-group">
+					<label for="password">Password</label>
+					<input type="password" name="password" id="password" required>
+				</div>
+				<div class="form-group">
+					<label for="password2">Confirm password</label>
+					<input type="password" name="password2" id="password2" required>
+				</div>
+				<button class="btn btn-primary form-submit" type="submit">Sign up</button>
+			</form>
+			<p class="form-footer">Already have an account? <a href="/login">Log in</a></p>
+		</div>
 </body>
 </html>

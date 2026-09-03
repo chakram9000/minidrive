@@ -1,23 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Minidrive</title>
+    <title>My Drive - Minidrive</title>
 		<%- include("components/meta.ejs") %>
 </head>
 <body>
-		<main>
-			<form action="/drive/upload-file/<%= subdrive.id %>" method="post" enctype="multipart/form-data">
-				<label for="file">Upload a file here:</label>
-				<input type="file" id="file" name="file" required />
-				<input type="submit" value="Submit" />
-			</form>
-			<form action="/drive/create-folder/<%= subdrive.id %>" method="post">
-				<label for="folder_name">Create a new folder:</label>
-				<input type="text" id="folder_name" name="folder_name" />
-				<input type="submit" value="Submit" />
-			</form>
+		<header class="header">
+			<a class="header-brand" href="/drive">
+				<span class="material-icons">cloud_queue</span>
+				<span>Minidrive</span>
+			</a>
+			<div class="header-spacer"></div>
+			<div class="header-nav">
+				<span class="header-user"><%= user.username %></span>
+				<a class="btn-text" href="/logout">Log out</a>
+			</div>
+		</header>
+
+		<main class="main-content">
+			<h1 class="page-title">
+				<span class="material-icons">folder</span>
+				My Drive
+			</h1>
+
+			<div class="action-bar">
+				<form action="/drive/upload-file/<%= subdrive.id %>" method="post" enctype="multipart/form-data">
+					<div class="file-input-wrapper">
+						<input type="file" id="file" name="file" required onchange="document.getElementById('file-name-label').textContent = this.files.length ? this.files[0].name : 'Choose a file'" />
+						<label class="file-input-label" for="file">
+							<span class="material-icons">attach_file</span>
+							<span id="file-name-label">Choose a file</span>
+						</label>
+					</div>
+					<button class="btn btn-primary" type="submit">
+						<span class="material-icons">upload</span>
+						Upload
+					</button>
+				</form>
+
+				<form action="/drive/create-folder/<%= subdrive.id %>" method="post">
+					<label for="folder_name">
+						<span class="material-icons">create_new_folder</span>
+						New folder
+					</label>
+					<input type="text" id="folder_name" name="folder_name" placeholder="Folder name" required />
+					<button class="btn btn-outline" type="submit">Create</button>
+				</form>
+			</div>
+
 			<%- include("components/drive.ejs") %>
 		</main>
 </body>
 </html>
-

@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Minidrive</title>
+    <title>Share created - Minidrive</title>
 		<%- include("components/meta.ejs") %>
 </head>
 <body>
-		<a href="/drive/home">Go home</a>
-		<br />
-		<h1>Success!</h1>
-    <p>Shared successfully. Here's the link: <a>/share/${uuid}</a>`</p>
+		<main class="main-content">
+			<div class="card card-centered success-card">
+				<span class="material-icons success-icon">check_circle</span>
+				<h1>Shared!</h1>
+				<p class="subtitle">Anyone with this link can view the folder (read-only).</p>
+				<div class="share-link-box"><a href="/share/<%= uuid %>">/share/<%= uuid %></a></div>
+				<div class="info-actions" style="justify-content:center;">
+					<a class="btn btn-primary" style="display:inline-flex;" href="/share/<%= uuid %>">
+						<span class="material-icons">open_in_new</span>
+						Open share link
+					</a>
+					<a class="btn btn-outline" style="display:inline-flex;" href="/drive">Go to My Drive</a>
+				</div>
+			</div>
+		</main>
 </body>
 </html>

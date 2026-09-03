@@ -1,18 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Minidrive</title>
+    <title>Share folder - Minidrive</title>
 		<%- include("components/meta.ejs") %>
 </head>
 <body>
-		<a href="/drive/folders/<%= dir.parentDirId %>">&lt;- Go back</a>
+		<header class="header">
+			<a class="header-brand" href="/drive">
+				<span class="material-icons">cloud_queue</span>
+				<span>Minidrive</span>
+			</a>
+			<div class="header-spacer"></div>
+			<div class="header-nav">
+				<span class="header-user"><%= user.username %></span>
+				<a class="btn-text" href="/logout">Log out</a>
+			</div>
+		</header>
 
-    <h1>Share '<%= dir.name %>/'</h1>
-		<h2>Share this folder with others. <b><i>Anyone</i></b> with the link will have read access to it.</h2>
-    <form action="/drive/share/<%= dir.id %>" method="post">
-        <label for="expires_at">Expires in:</label>
-				<input type="date" name="expires_at" id="expires_at" min="<%= new Date().toISOString().split('T')[0] %>">
-        <input type="submit" value="Share">
-    </form>
+		<main class="main-content">
+			<div class="card share-card">
+				<a class="breadcrumb-back" href="/drive/folders/<%= dir.parentDirId %>">
+					<span class="material-icons">arrow_back</span>
+					Back
+				</a>
+				<h1 class="page-title">
+					<span class="material-icons">share</span>
+					Share '<%= dir.name %>'
+				</h1>
+				<p class="share-desc">
+					Share this folder with others. <b>Anyone</b> with the link will have <i>read-only</i> access to it.
+				</p>
+				<form action="/drive/share/<%= dir.id %>" method="post">
+					<div class="form-group">
+						<label for="expires_at">Expires on</label>
+						<input type="date" name="expires_at" id="expires_at" min="<%= new Date().toISOString().split('T')[0] %>" required>
+					</div>
+					<button class="btn btn-primary form-submit" type="submit">
+						<span class="material-icons">link</span>
+						Create share link
+					</button>
+				</form>
+			</div>
+		</main>
 </body>
 </html>
